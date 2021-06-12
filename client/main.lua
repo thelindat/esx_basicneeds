@@ -65,31 +65,31 @@ AddEventHandler('esx_status:onTick', function(data)
 	local prevHealth = GetEntityHealth(playerPed)
 	local health     = prevHealth
 	
-	for i=1, #data do
-		if data[i].name == 'hunger' and data[i].percent == 0 then
+	for k, v in pairs(data) do
+		if v.name == 'hunger' and v.percent == 0 then
 			if prevHealth <= 150 then
 				health = health - 5
 			else
 				health = health - 1
 			end
-		elseif data[i].name == 'thirst' and data[i].percent == 0 then
+		elseif v.name == 'thirst' and v.percent == 0 then
 			if prevHealth <= 150 then
 				health = health - 5
 			else
 				health = health - 1
 			end
-		elseif data[i].name == 'stress' then
+		elseif v.name == 'stress' then stress = v.percent
 			if stressWait > 0 then stressWait = stressWait - 1
-			elseif data[i].percent >= 80 then
+			elseif v.percent >= 80 then
 				stressWait = 3
 				ShakeGameplayCam('VIBRATE_SHAKE', 0.50)
-			elseif data[i].percent >= 65 then
+			elseif v.percent >= 65 then
 				stressWait = 4
 				ShakeGameplayCam('VIBRATE_SHAKE', 0.30)
-			elseif data[i].percent >= 50 then
+			elseif v.percent >= 50 then
 				stressWait = 5
 				ShakeGameplayCam('VIBRATE_SHAKE', 0.12)
-			elseif data[i].percent >= 35 then
+			elseif v.percent >= 35 then
 				stressWait = 6
 				ShakeGameplayCam('VIBRATE_SHAKE', 0.07)
 			end
