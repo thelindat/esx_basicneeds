@@ -1,4 +1,4 @@
-ESX          = nil
+ESX		  = nil
 local IsDead = false
 local IsAnimated = false
 
@@ -55,15 +55,16 @@ AddEventHandler('esx_status:loaded', function(status)
 	TriggerEvent('esx_status:registerStatus', 'stress', 0, '#CF380F', function(status)
 		return Config.Visible
 	end, function(status)
-		status.remove(5)
+
 	end)
 end)
 
-local stressWait = 0
+local stressWait, aiming, holding, melee, still, stealth = 0, 0, 0, 0, 0, 0
+
 AddEventHandler('esx_status:onTick', function(data)
 	local playerPed  = PlayerPedId()
 	local prevHealth = GetEntityHealth(playerPed)
-	local health     = prevHealth
+	local health	 = prevHealth
 	
 	for k, v in pairs(data) do
 		if v.name == 'hunger' and v.percent == 0 then
@@ -79,6 +80,38 @@ AddEventHandler('esx_status:onTick', function(data)
 				health = health - 1
 			end
 		elseif v.name == 'stress' then stress = v.percent
+			local stress = 0
+			local calm = true
+
+			if aiming <= 0 and GetPedConfigFlag(playerPed, 78, 1) then
+				stress = stress + 10000
+				aiming = 5
+				calm = false
+			else aiming = aiming - 1 end
+
+			if holding <= 0 and IsPedArmed(playerPed, 4) then
+				stress = stress + 10000
+				holding = 15
+				calm = false
+			else holding = holding - 1 end
+
+			if melee <= 0 and IsPedInMeleeCombat(playerPed) then
+				stress = stress + 5000
+				melee = 5
+				calm = false
+			else melee = melee - 1 end
+
+			if stealth <= 0 and GetPedStealthMovement(playerPed) then
+				stress = stress + 10000
+				stealth = 8
+				calm = false
+			else stealth = stealth - 1 end
+
+			if calm and still <= 0 and IsPedStill(playerPed) then
+				stress = stress - 30000
+				still = 15
+			else still = still - 1 end
+
 			if stressWait > 0 then stressWait = stressWait - 1
 			elseif v.percent >= 80 then
 				stressWait = 3
@@ -92,6 +125,10 @@ AddEventHandler('esx_status:onTick', function(data)
 			elseif v.percent >= 35 then
 				stressWait = 6
 				ShakeGameplayCam('VIBRATE_SHAKE', 0.07)
+			end
+
+			if stress ~= 0 then
+				if stress > 0 then TriggerEvent('esx_status:add', 'stress', stress) else TriggerEvent('esx_status:remove', 'stress', -stress) end
 			end
 		end
 	end
