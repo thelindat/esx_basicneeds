@@ -89,7 +89,7 @@ AddEventHandler('esx_status:onTick', function(data)
 				calm = false
 			else aiming = aiming - 1 end
 
-			if holding <= 0 and IsPedArmed(playerPed, 4) then
+			if holding <= 0 and IsPedArmed(playerPed, 4) and not IsPedCurrentWeaponSilenced(playerPed) then
 				stress = stress + 10000
 				holding = 15
 				calm = false
