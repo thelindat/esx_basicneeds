@@ -59,7 +59,7 @@ AddEventHandler('esx_status:loaded', function(status)
 	end)
 end)
 
-local stressWait, aiming, holding, melee, still, stealth = 0, 0, 0, 0, 0, 0
+local stressWait, aiming, holding, melee, still, stealth, jacking = 0, 0, 0, 0, 0, 0, 0
 
 AddEventHandler('esx_status:onTick', function(data)
 	local playerPed  = PlayerPedId()
@@ -84,9 +84,16 @@ AddEventHandler('esx_status:onTick', function(data)
 			local calm = true
 
 			if aiming <= 0 and GetPedConfigFlag(playerPed, 78, 1) then
-				stress = stress + 10000
-				aiming = 5
-				calm = false
+				local suppressed = IsPedCurrentWeaponSilenced(playerPed)
+				if not suppressed then
+					stress = stress + 500
+					aiming = 5
+					calm = false
+				else
+					stress = stress + 1000
+					aiming = 5
+					calm = false
+				end
 			else aiming = aiming - 1 end
 
 			if holding <= 0 and IsPedArmed(playerPed, 4) then
@@ -106,6 +113,12 @@ AddEventHandler('esx_status:onTick', function(data)
 				stealth = 8
 				calm = false
 			else stealth = stealth - 1 end
+			
+			if jacking <= 0 and IsPedJacking(playerPed) then
+				stress = stress + 500
+				jacking = 7
+				calm = false
+			else jacking = jacking - 1 end
 
 			if calm and still <= 0 and IsPedStill(playerPed) then
 				stress = stress - 30000
